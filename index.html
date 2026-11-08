@@ -55,13 +55,16 @@ nav button:after{content:'✦';position:absolute;top:5px;right:12px;color:#fff9;
 .status{animation:starPulse 3.4s ease-in-out infinite}
 @keyframes starPulse{50%{box-shadow:0 0 22px #ffd36b99;transform:scale(1.035)}}
 @media(prefers-reduced-motion:reduce){body,header .big,.fairytale-sky span,nav button:after,.card:not([hidden]),.status{animation:none!important}*{scroll-behavior:auto!important}}
+
+.sparkle-pop{position:fixed;pointer-events:none;z-index:9999;font-size:25px;animation:popfly 950ms ease-out forwards}@keyframes popfly{from{opacity:1;transform:translate(0,0) scale(.6)}to{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(140deg) scale(1.4)}}
+@media(prefers-reduced-motion:reduce){.sparkle-pop{animation:none;display:none}}
 </style></head><body><div class="fairytale-sky" aria-hidden="true"><span style="top:8%;left:4%;font-size:34px;--dur:13s">☁️</span><span style="top:18%;right:6%;font-size:25px;--dur:9s;--delay:-3s">✨</span><span style="top:37%;left:3%;font-size:30px;--dur:11s;--delay:-6s">🦋</span><span style="top:52%;right:3%;font-size:36px;--dur:14s">☁️</span><span style="top:69%;left:5%;font-size:26px;--dur:10s;--delay:-4s">⭐</span><span style="top:85%;right:6%;font-size:29px;--dur:12s;--delay:-7s">🌸</span></div><main>
 <header><div class="big">🦄🏰🌈</div><h1>Mieke's Magical World</h1><p id="welcome">Welcome, Mieke! Your adventure begins!</p><p class="status" id="stars">⭐ 0 stars</p></header>
 <nav><button onclick="show('friend')">🐉 My Friend</button><button onclick="show('math')">🧮 Learning</button><button onclick="show('read')">📚 Reading</button><button onclick="show('parent')">🔒 Daddy</button></nav>
 <section id="friend" class="card"><h2>🐉 Chat with your magical dragon</h2><p class="small">Your dragon can answer questions with AI when online. AI can make mistakes. Ask a trusted grown-up about important things.</p><div class="bubble" id="reply" aria-live="polite">Hello, Mieke! I'm your dragon friend. Tell me how you feel, or ask about animals, stories, and numbers!</div><p><button onclick="speak($('reply').textContent)">🔊 Listen</button></p><div class="row"><input id="message" placeholder="Type a message..." aria-label="Your message"><button onclick="chat()">Send 💌</button></div><p class="small" id="speechStatus" role="status">Type your question and tap Send. Your dragon will read its answer aloud.</p></section>
 <section id="math" class="card" hidden><h2>🧮 Choose an activity</h2><div class="topicgrid" id="topics"></div><h3 id="topicTitle">Addition</h3><p class="bubble" id="question" aria-live="polite"></p><div class="choices" id="answers"></div><button id="animalHint" class="alt" onclick="showAnimalHint()" hidden>💡 Hint</button><p class="feedback" id="mathFeedback" role="status"></p><button onclick="newQuestion()">➡️ Next question</button><button class="alt" onclick="speak($('question').textContent)">🔊 Read question</button></section>
 <section id="read" class="card" hidden><h2>📚 Story Time</h2><p id="storyNumber" class="small"></p><div class="bubble" id="story"></div><p><button onclick="speak($('story').textContent)">🔊 Read to me</button><button class="alt" onclick="nextStory()">📖 Next story</button></p><h3 id="readingQuestion"></h3><div class="choices" id="readingChoices"></div><p class="feedback" id="readingFeedback" role="status"></p></section>
-<section id="parent" class="card" hidden><h2>🔒 Daddy's Corner</h2><p class="small">Progress is saved only in this browser on this device. This section is not PIN-protected.</p><p id="progress"></p><h3>🗣️ Voice settings</h3><label for="voice">English voice</label><select id="voice"></select><p class="small" id="voiceStatus"></p><button onclick="loadVoices()">🔄 Refresh voices</button><button onclick="speak('Hello Mieke! Welcome to your magical world!')">🔊 Test voice</button><label for="rate">Speaking speed: <span id="rateLabel">0.90</span></label><input id="rate" type="range" min="0.6" max="1.2" step="0.05" value="0.9" oninput="setRate(this.value)"><p><button onclick="speak('I am so proud of you, Mieke!')">❤️ A message for Mieke</button></p><p class="small">If you clear browser data or switch devices, local progress may be lost. AI chat questions are sent to Google Gemini through Cloudflare. Do not share private information.</p></section>
+<section id="parent" class="card" hidden><h2>🔒 Daddy's Corner</h2><p class="small">Progress is saved only in this browser on this device. This section is not PIN-protected.</p><p id="progress"></p><h3>🎶 Game sounds</h3><label><input type="checkbox" id="gameSounds" checked onchange="setGameSounds(this.checked)"> Play magical sounds for answers</label><h3>🗣️ Voice settings</h3><label for="voice">English voice</label><select id="voice"></select><p class="small" id="voiceStatus"></p><button onclick="loadVoices()">🔄 Refresh voices</button><button onclick="speak('Hello Mieke! Welcome to your magical world!')">🔊 Test voice</button><label for="rate">Speaking speed: <span id="rateLabel">0.90</span></label><input id="rate" type="range" min="0.6" max="1.2" step="0.05" value="0.9" oninput="setRate(this.value)"><p><button onclick="speak('I am so proud of you, Mieke!')">❤️ A message for Mieke</button></p><p class="small">If you clear browser data or switch devices, local progress may be lost. AI chat questions are sent to Google Gemini through Cloudflare. Do not share private information.</p></section>
 <footer class="small">Free to play • No ads • AI chat needs internet and may have usage limits</footer></main>
 <script>
 'use strict';
@@ -148,36 +151,30 @@ const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const pick=a=>a[rnd(0,a.length-1)];
 // Age 6–7: familiar animals, short clues, and gentle challenges.
 const animalRiddles=[
-['Elephant','I am very big. I have a long trunk and two large ears.','I use my trunk to drink water.'],
-['Giraffe','I have a very long neck and spots on my body.','I can reach leaves high in trees.'],
-['Zebra','I look like a horse, but I have black and white stripes.','I live on the grasslands of Africa.'],
-['Lion','I am a big wild cat. I roar loudly.','Male lions often have a mane.'],
-['Cheetah','I am a spotted wild cat and I can run very fast.','I am the fastest land animal.'],
-['Hippo','I am very heavy and spend lots of time in rivers.','My mouth opens very wide.'],
-['Crocodile','I have sharp teeth, a long tail, and tough skin.','I can hide in the water with my eyes above it.'],
-['Rhino','I have thick skin and one or two horns on my nose.','I am a large African animal.'],
-['Kangaroo','I jump on strong back legs and have a long tail.','I carry my baby in a pouch.'],
-['Penguin','I am a bird that cannot fly, but I swim very well.','I often look like I am wearing a black-and-white suit.'],
-['Dolphin','I live in the sea, breathe air, and love to jump.','I am clever and make clicking sounds.'],
-['Whale','I am a huge animal that lives in the ocean.','I breathe air through a blowhole.'],
-['Octopus','I live in the sea and have eight arms.','I can squirt ink to escape.'],
-['Shark','I swim in the sea and have rows of sharp teeth.','I am a fish, not a dolphin.'],
-['Owl','I am a bird that often hunts at night.','I have big eyes and can turn my head far around.'],
-['Bat','I sleep hanging upside down and fly at night.','I am a mammal, not a bird.'],
-['Chameleon','I am a lizard that can change colour.','My eyes can look in different directions.'],
-['Tortoise','I have a hard shell and walk slowly on land.','I can pull my head into my shell.'],
-['Frog','I hop and make croaking sounds near water.','I start life as a tadpole.'],
-['Butterfly','I have colourful wings and start life as a caterpillar.','I visit flowers.'],
-['Bee','I buzz around flowers and help make honey.','I live with other bees in a hive.'],
-['Ant','I am tiny and live in a busy colony.','I can carry things heavier than myself.'],
-['Flamingo','I am a tall pink bird with long thin legs.','I often stand on one leg.'],
-['Meerkat','I am small, live in groups, and stand upright to look for danger.','I live in burrows in southern Africa.'],
-['Porcupine','I have many sharp quills to protect myself.','I am a rodent with spikes on my back.'],
-['Ostrich','I am a very tall bird that cannot fly but runs fast.','I lay very large eggs.'],
-['Seal','I swim well and rest on beaches or rocks.','I have flippers and whiskers.'],
-['Camel','I can travel in dry deserts and have humps on my back.','My humps store fat, not water.'],
-['Peacock','I am a bird famous for my beautiful fan-shaped tail.','The male has colourful feathers with eye-like patterns.'],
-['Rabbit','I have long ears, soft fur, and strong hopping legs.','I like to nibble grass and vegetables.']
+["Dog", "I bark. I wag my tail.", "I say woof!"],
+["Cat", "I say meow. I like to sleep.", "I have whiskers."],
+["Cow", "I say moo. I give milk.", "I live on a farm."],
+["Horse", "You can ride on my back. I say neigh.", "I have a mane."],
+["Sheep", "I have soft wool. I say baa.", "My wool can make clothes."],
+["Pig", "I say oink. I have a curly tail.", "I like muddy puddles."],
+["Chicken", "I lay eggs. I say cluck.", "I have feathers and live on a farm."],
+["Duck", "I say quack. I swim on ponds.", "I have a flat beak."],
+["Lion", "I am a big cat. I roar!", "I have a big mane."],
+["Elephant", "I am very big. I have a long trunk.", "I have big ears."],
+["Giraffe", "I have a very long neck.", "I eat leaves high in trees."],
+["Zebra", "I have black and white stripes.", "I look a little like a horse."],
+["Monkey", "I climb trees. I like bananas.", "I have a long tail."],
+["Rabbit", "I hop. I have long ears.", "I like carrots."],
+["Frog", "I jump. I say ribbit.", "I live near water."],
+["Fish", "I swim in water. I have fins.", "I breathe with gills."],
+["Butterfly", "I have pretty wings. I fly to flowers.", "I was once a caterpillar."],
+["Bee", "I buzz. I help make honey.", "I visit flowers."],
+["Snake", "I have no legs. I slither.", "I say hiss."],
+["Turtle", "I have a hard shell on my back.", "I can hide my head in my shell."],
+["Penguin", "I am a bird. I swim but cannot fly.", "I look black and white."],
+["Crocodile", "I have a long tail and sharp teeth.", "I swim in rivers."],
+["Hippo", "I am big. I spend lots of time in water.", "I have a very big mouth."],
+["Owl", "I am a bird with big eyes. I say hoot.", "I am often awake at night."]
 ];
 let lastAnimal=-1;
 function animalQuestion(){
@@ -185,7 +182,7 @@ function animalQuestion(){
  if(index===lastAnimal)index=(index+1)%animalRiddles.length;
  lastAnimal=index;
  let [name,clue,hint]=animalRiddles[index];
- let wrong=shuffle(animalRiddles.map(x=>x[0]).filter(x=>x!==name)).slice(0,3);
+ let wrong=shuffle(animalRiddles.map(x=>x[0]).filter(x=>x!==name)).slice(0,2);
  return {prompt:'🐾 GUESS THE ANIMAL!\n\n'+clue+'\n\nWhich animal am I? Tap 💡 Hint if you need help.',answer:name,options:shuffle([name,...wrong]),hint};
 }
 function questionFor(t){let a,b,c,n,answer,prompt,options=null;switch(t){
@@ -236,7 +233,44 @@ function tallies(n){let out=[];for(let i=0;i<Math.floor(n/5);i++)out.push('||||/
 function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=rnd(0,i);[b[i],b[j]]=[b[j],b[i]]}return b}
 function distractors(correct){let set=new Set([correct]);let tries=0;while(set.size<4&&tries++<100){let delta=rnd(-8,8);let v=correct+delta;if(v>=0)set.add(v)}for(let v=0;set.size<4;v++)set.add(v);return shuffle([...set])}
 function showAnimalHint(){if(topic!=='animals'||!currentQuestion?.hint||answered)return;$('question').textContent += '\n\n💡 HINT: '+currentQuestion.hint;$('animalHint').hidden=true;}
-function newQuestion(){answered=false;currentQuestion=questionFor(topic);$('animalHint').hidden=topic!=='animals';$('topicTitle').textContent=topics.find(x=>x[0]===topic)[1];$('question').textContent=currentQuestion.prompt;$('mathFeedback').textContent='';$('answers').replaceChildren();let options=currentQuestion.options||distractors(currentQuestion.answer);options.forEach(x=>{let btn=document.createElement('button');btn.textContent=String(x);btn.onclick=()=>{if(answered)return;answered=true;if(x===currentQuestion.answer){data.stars++;data.math++;$('mathFeedback').textContent=topic==='animals'?'🌟 Brilliant animal detective! You earned a star!':'🌟 Fantastic! You earned a star!';speak(topic==='animals'?'Brilliant detective, Mieke! You found the animal!':'Fantastic, Mieke! You earned a star!')}else{$('mathFeedback').textContent=`Good try! The correct answer is ${currentQuestion.answer}.`;speak('Good try! Let us try another one.')}$('animalHint').hidden=true;save();[...$('answers').children].forEach(b=>b.disabled=true)};$('answers').appendChild(btn)})}
+
+// Original musical sound effects, generated on the device; no downloads needed.
+let soundEnabled=true;try{soundEnabled=localStorage.getItem('mieke-game-sounds')!=='off'}catch{}
+$('gameSounds').checked=soundEnabled;
+function setGameSounds(enabled){soundEnabled=enabled;try{localStorage.setItem('mieke-game-sounds',enabled?'on':'off')}catch{}}
+let audioContext=null,lastSound=0;
+function gameSound(correct){
+ if(!soundEnabled)return;
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+  audioContext=audioContext||new AC();if(audioContext.state==='suspended')audioContext.resume();
+  const now=audioContext.currentTime;
+  const melodies=correct?[[523,659,784,1047],[587,740,880,1175],[659,784,988,1319],[523,784,988,1175]]:[[392,330],[440,349],[349,294]];
+  const notes=melodies[Math.floor(Math.random()*melodies.length)];
+  notes.forEach((hz,i)=>{
+   const oscillator=audioContext.createOscillator(),gain=audioContext.createGain();
+   oscillator.type=correct?'sine':'triangle';oscillator.frequency.setValueAtTime(hz,now+i*(correct?.105:.16));
+   const start=now+i*(correct?.105:.16);gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(correct?.095:.055,start+.025);gain.gain.exponentialRampToValueAtTime(.0001,start+(correct?.28:.25));
+   oscillator.connect(gain);gain.connect(audioContext.destination);oscillator.start(start);oscillator.stop(start+.3);
+  });
+ }catch(e){}
+}
+const happyMessages=['🌟 Amazing work, Mieke!','🦄 Magical! You got it!','🌈 Hooray! Brilliant answer!','✨ Super star! Well done!','🐉 Dragon high-five!','🎉 Wonderful thinking!'];
+const tryMessages=['💜 Good try! Keep learning!','🌷 Almost! Every try helps you grow.','🐉 Nice effort! Let’s learn together.','✨ That was a brave try!'];
+function answerCelebration(ok,anchor){
+ gameSound(ok);
+ if(!ok||window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+ const rect=anchor?.getBoundingClientRect?.()||{left:innerWidth/2,top:innerHeight/2,width:0,height:0};
+ for(let i=0;i<10;i++){
+  let star=document.createElement('span');star.className='sparkle-pop';star.textContent=['⭐','✨','🌈','💖','🦄'][i%5];
+  star.style.left=(rect.left+rect.width/2)+'px';star.style.top=(rect.top+rect.height/2)+'px';
+  star.style.setProperty('--dx',((Math.random()-.5)*220)+'px');star.style.setProperty('--dy',(-50-Math.random()*150)+'px');
+  document.body.appendChild(star);setTimeout(()=>star.remove(),1100);
+ }
+}
+function randomMessage(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function newQuestion(){answered=false;currentQuestion=questionFor(topic);$('animalHint').hidden=topic!=='animals';$('topicTitle').textContent=topics.find(x=>x[0]===topic)[1];$('question').textContent=currentQuestion.prompt;$('mathFeedback').textContent='';$('answers').replaceChildren();let options=currentQuestion.options||distractors(currentQuestion.answer);options.forEach(x=>{let btn=document.createElement('button');btn.textContent=String(x);btn.onclick=()=>{if(answered)return;answered=true;if(x===currentQuestion.answer){data.stars++;data.math++;$('mathFeedback').textContent=randomMessage(happyMessages)+' ⭐ You earned a star!';answerCelebration(true,btn)}else{$('mathFeedback').textContent=randomMessage(tryMessages)+` The correct answer is ${currentQuestion.answer}.`;answerCelebration(false,btn)}$('animalHint').hidden=true;save();[...$('answers').children].forEach(b=>b.disabled=true)};$('answers').appendChild(btn)})}
 const stories=[
 {title:'The Friendly Dragon',text:'Mieke walks through a green forest. She sees a little dragon next to a tree. The dragon smiles and asks her to look for a treasure.',q:'Which animal did Mieke see?',a:['A dragon','An elephant','A lion'],correct:0},
 {title:'The Red Balloon',text:'Mieke finds a bright red balloon in the garden. A gentle breeze carries it towards a big tree. Daddy helps her catch it.',q:'What colour was the balloon?',a:['Blue','Red','Green'],correct:1},
@@ -252,5 +286,5 @@ const stories=[
 {title:'The Rainy Day',text:'Rain taps gently on the window. Mieke puts on her yellow rain boots and jumps in a puddle while Daddy watches nearby.',q:'What colour were her boots?',a:['Yellow','Purple','Black'],correct:0}
 ];
 let storyIndex=-1,currentStory=null,readingAnswered=false;
-function nextStory(){storyIndex=(storyIndex+1)%stories.length;currentStory=stories[storyIndex];readingAnswered=false;$('storyNumber').textContent=`Story ${storyIndex+1} of ${stories.length}: ${currentStory.title}`;$('story').textContent=currentStory.text;$('readingQuestion').textContent=currentStory.q;$('readingFeedback').textContent='';$('readingChoices').replaceChildren();currentStory.a.forEach((a,i)=>{let b=document.createElement('button');b.textContent=a;b.onclick=()=>{if(readingAnswered)return;if(i===currentStory.correct){readingAnswered=true;data.stars++;data.reading++;$('readingFeedback').textContent='🌟 Correct! You earned a star! Tap Next story to continue.';speak('Well done, Mieke!');[...$('readingChoices').children].forEach(x=>x.disabled=true);save()}else{$('readingFeedback').textContent='Try again! Read the story carefully.';speak('Try again, Mieke!')}};$('readingChoices').appendChild(b)})}
+function nextStory(){storyIndex=(storyIndex+1)%stories.length;currentStory=stories[storyIndex];readingAnswered=false;$('storyNumber').textContent=`Story ${storyIndex+1} of ${stories.length}: ${currentStory.title}`;$('story').textContent=currentStory.text;$('readingQuestion').textContent=currentStory.q;$('readingFeedback').textContent='';$('readingChoices').replaceChildren();currentStory.a.forEach((a,i)=>{let b=document.createElement('button');b.textContent=a;b.onclick=()=>{if(readingAnswered)return;if(i===currentStory.correct){readingAnswered=true;data.stars++;data.reading++;$('readingFeedback').textContent=randomMessage(happyMessages)+' ⭐ You earned a star! Tap Next story to continue.';answerCelebration(true,b);[...$('readingChoices').children].forEach(x=>x.disabled=true);save()}else{$('readingFeedback').textContent=randomMessage(tryMessages)+' Read the story carefully.';answerCelebration(false,b)}};$('readingChoices').appendChild(b)})}
 </script></body></html>
