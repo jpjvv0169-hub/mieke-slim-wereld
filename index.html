@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#8158d8"><title>Mieke's Magical World</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ad79df"><title>Mieke's Magical World</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:linear-gradient(145deg,#fff0fa,#e9f4ff);color:#302348;min-height:100vh}main{max-width:680px;margin:auto;padding:16px}header{text-align:center;padding:12px}h1{font-size:clamp(1.6rem,6vw,2.2rem);margin:8px}h2{font-size:1.25rem}.card{background:#fff;border-radius:22px;padding:19px;margin:14px 0;box-shadow:0 8px 25px #7d5aa51c}button{border:0;background:#8158d8;color:white;border-radius:15px;padding:13px 16px;margin:4px;font-weight:700;font-size:1rem;cursor:pointer}button.alt{background:#ec6caa}button.teal{background:#3e9c9c}button:disabled{opacity:.5}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid orange}input,select{padding:12px;border:2px solid #ddd;border-radius:12px;font-size:1rem;max-width:100%}input[type=range]{width:100%;padding:0}.big{font-size:3rem;text-align:center}.bubble{background:#f2eaff;border-radius:15px;padding:15px;line-height:1.6;white-space:pre-line}.small{color:#675b78;font-size:.9rem}nav{display:flex;flex-wrap:wrap;justify-content:center}nav button{background:#3e9c9c}section[hidden]{display:none}.status{font-weight:700;color:#673ab7}label{display:block;margin:12px 0 5px;font-weight:650}footer{text-align:center;padding:16px}.choices{display:flex;flex-wrap:wrap;gap:5px}.choices button{min-width:65px}.topicgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.topicgrid button{margin:0;min-height:68px;font-size:.92rem}.topicgrid button.selected{background:#3e9c9c}.feedback{font-weight:700;min-height:1.5em}.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.muted{opacity:.75}
 
@@ -35,7 +35,27 @@ input,select{background:#fff;border:2px solid #e3c8ef;border-radius:16px;color:#
 @keyframes floatMagic{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @media(prefers-reduced-motion:reduce){header .big{animation:none}button{transition:none}}
 @media(max-width:390px){.card{padding:16px}nav button{font-size:.92rem;padding:11px 9px}.topicgrid button{font-size:.83rem}}
-</style></head><body><main>
+
+/* Animated storybook edition */
+body{background-size:130% 130%;animation:skyShimmer 22s ease-in-out infinite alternate}
+@keyframes skyShimmer{from{background-position:0% 0%}to{background-position:100% 70%}}
+.fairytale-sky{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.fairytale-sky span{position:absolute;display:block;user-select:none;filter:drop-shadow(0 4px 5px #ae89c155);animation:driftUp var(--dur,12s) ease-in-out infinite alternate;animation-delay:var(--delay,0s);opacity:.72}
+@keyframes driftUp{0%{transform:translate3d(0,12px,0) rotate(-8deg)}50%{transform:translate3d(15px,-18px,0) rotate(8deg)}100%{transform:translate3d(-10px,-35px,0) rotate(-6deg)}}
+main{z-index:1}
+header .big{animation:floatMagic 3.6s ease-in-out infinite,glowMagic 4s ease-in-out infinite alternate}
+@keyframes glowMagic{to{filter:drop-shadow(0 0 18px #f8b9e9)}}
+nav button{transition:transform .2s ease,filter .2s ease;position:relative;overflow:hidden}
+nav button:active{transform:translateY(4px) scale(.97)}
+nav button:after{content:'✦';position:absolute;top:5px;right:12px;color:#fff9;animation:twinkle 2.4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.3)}}
+.card:not([hidden]){animation:appearMagic .45s ease-out both}
+@keyframes appearMagic{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.bubble{border:2px solid #edd3ff;background:linear-gradient(120deg,#f5eaff,#e8f4ff);box-shadow:inset 0 1px 10px #fff9}
+.status{animation:starPulse 3.4s ease-in-out infinite}
+@keyframes starPulse{50%{box-shadow:0 0 22px #ffd36b99;transform:scale(1.035)}}
+@media(prefers-reduced-motion:reduce){body,header .big,.fairytale-sky span,nav button:after,.card:not([hidden]),.status{animation:none!important}*{scroll-behavior:auto!important}}
+</style></head><body><div class="fairytale-sky" aria-hidden="true"><span style="top:8%;left:4%;font-size:34px;--dur:13s">☁️</span><span style="top:18%;right:6%;font-size:25px;--dur:9s;--delay:-3s">✨</span><span style="top:37%;left:3%;font-size:30px;--dur:11s;--delay:-6s">🦋</span><span style="top:52%;right:3%;font-size:36px;--dur:14s">☁️</span><span style="top:69%;left:5%;font-size:26px;--dur:10s;--delay:-4s">⭐</span><span style="top:85%;right:6%;font-size:29px;--dur:12s;--delay:-7s">🌸</span></div><main>
 <header><div class="big">🦄🏰🌈</div><h1>Mieke's Magical World</h1><p id="welcome">Welcome, Mieke! Your adventure begins!</p><p class="status" id="stars">⭐ 0 stars</p></header>
 <nav><button onclick="show('friend')">🐉 My Friend</button><button onclick="show('math')">🧮 Learning</button><button onclick="show('read')">📚 Reading</button><button onclick="show('parent')">🔒 Daddy</button></nav>
 <section id="friend" class="card"><h2>🐉 Chat with your magical dragon</h2><p class="small">Your dragon can answer questions with AI when online. AI can make mistakes. Ask a trusted grown-up about important things.</p><div class="bubble" id="reply" aria-live="polite">Hello, Mieke! I'm your dragon friend. Tell me how you feel, or ask about animals, stories, and numbers!</div><p><button onclick="speak($('reply').textContent)">🔊 Listen</button></p><div class="row"><input id="message" placeholder="Type a message..." aria-label="Your message"><button onclick="chat()">Send 💌</button></div><p class="small" id="speechStatus" role="status">Type your question and tap Send. Your dragon will read its answer aloud.</p></section>
