@@ -141,12 +141,36 @@ async function chat(){
  }finally{clearTimeout(timeout);chatBusy=false;input.disabled=false;}
 }
 $('message').addEventListener('keydown',e=>{if(e.key==='Enter')chat()});
-const topics=[['add','➕ Addition'],['subtract','➖ Subtraction'],['multiply','✖️ Multiplication'],['divide','➗ Division'],['train','🚂 Number trains'],['houses','🏠 Number houses'],['words','💬 Word problems'],['names','🔤 Number names'],['patterns','🔢 Patterns'],['tally','📊 Tally marks'],['rows','🟦 Rows & columns'],['mass','⚖️ Mass'],['volume','🧪 Volume & capacity'],['time','🕒 Time'],['money','💰 Money & change'],['directions','🧭 Directions']];
+const topics=[['add','➕ Addition'],['subtract','➖ Subtraction'],['multiply','✖️ Multiplication'],['divide','➗ Division'],['train','🚂 Number trains'],['houses','🏠 Number houses'],['words','💬 Word problems'],['names','🔤 Number names'],['patterns','🔢 Patterns'],['tally','📊 Tally marks'],['rows','🟦 Rows & columns'],['mass','⚖️ Mass'],['volume','🧪 Volume & capacity'],['time','🕒 Time'],['money','💰 Money & change'],['directions','🧭 Directions'],['heavy-light','🐘 Heaviest & lightest'],['long-short','📏 Longest & shortest'],['capacity-compare','🪣 Most & least water'],['size-order','🌈 Biggest & smallest']];
 let topic='add',currentQuestion=null,answered=false;
 for(let [id,name] of topics){let b=document.createElement('button');b.textContent=name;b.className=id===topic?'selected':'';b.onclick=()=>{topic=id;document.querySelectorAll('#topics button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');newQuestion()};$('topics').appendChild(b)}
 const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const pick=a=>a[rnd(0,a.length-1)];
 function questionFor(t){let a,b,c,n,answer,prompt,options=null;switch(t){
+case 'heavy-light':{
+ const things=[['📎 Paper clip',1],['🖊️ Pen',2],['🔨 Hammer',3],['🏍️ Motorbike',4],['🐘 Elephant',5]];
+ const chosen=shuffle(things).slice(0,3);const biggest=Math.random()<.5;
+ answer=[...chosen].sort((x,y)=>biggest?y[1]-x[1]:x[1]-y[1])[0][0];
+ prompt=`⚖️ Look at the objects. Which is the ${biggest?'heaviest':'lightest'}?\n${chosen.map(x=>x[0]).join('   ')}`;
+ options=shuffle(chosen.map(x=>x[0]));break}
+case 'long-short':{
+ const things=[['🐛 Caterpillar',1],['✏️ Pencil',2],['🧹 Broom',3],['🚗 Car',4],['🚌 Bus',5]];
+ const chosen=shuffle(things).slice(0,3);const biggest=Math.random()<.5;
+ answer=[...chosen].sort((x,y)=>biggest?y[1]-x[1]:x[1]-y[1])[0][0];
+ prompt=`📏 Which is the ${biggest?'longest':'shortest'}?\n${chosen.map(x=>x[0]).join('   ')}`;
+ options=shuffle(chosen.map(x=>x[0]));break}
+case 'capacity-compare':{
+ const things=[['🥄 Spoon',1],['☕ Cup',2],['🫗 Jug',3],['🪣 Bucket',4],['🛁 Bath',5]];
+ const chosen=shuffle(things).slice(0,3);const biggest=Math.random()<.5;
+ answer=[...chosen].sort((x,y)=>biggest?y[1]-x[1]:x[1]-y[1])[0][0];
+ prompt=`💧 Which can hold the ${biggest?'most':'least'} water?\n${chosen.map(x=>x[0]).join('   ')}`;
+ options=shuffle(chosen.map(x=>x[0]));break}
+case 'size-order':{
+ const things=[['🐜 Ant',1],['🐭 Mouse',2],['🐈 Cat',3],['🐎 Horse',4],['🐘 Elephant',5]];
+ const chosen=shuffle(things).slice(0,3);const biggest=Math.random()<.5;
+ answer=[...chosen].sort((x,y)=>biggest?y[1]-x[1]:x[1]-y[1])[0][0];
+ prompt=`🌈 Which animal is usually the ${biggest?'biggest':'smallest'}?\n${chosen.map(x=>x[0]).join('   ')}`;
+ options=shuffle(chosen.map(x=>x[0]));break}
 case 'add':a=rnd(1,20);b=rnd(1,20);answer=a+b;prompt=`What is ${a} + ${b}?`;break;
 case 'subtract':a=rnd(5,30);b=rnd(1,a);answer=a-b;prompt=`What is ${a} − ${b}?`;break;
 case 'multiply':a=rnd(1,10);b=rnd(1,10);answer=a*b;prompt=`What is ${a} × ${b}?`;break;
