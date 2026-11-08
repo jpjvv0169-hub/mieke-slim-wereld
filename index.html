@@ -38,11 +38,11 @@ input,select{background:#fff;border:2px solid #e3c8ef;border-radius:16px;color:#
 </style></head><body><main>
 <header><div class="big">🦄🏰🌈</div><h1>Mieke's Magical World</h1><p id="welcome">Welcome, Mieke! Your adventure begins!</p><p class="status" id="stars">⭐ 0 stars</p></header>
 <nav><button onclick="show('friend')">🐉 My Friend</button><button onclick="show('math')">🧮 Learning</button><button onclick="show('read')">📚 Reading</button><button onclick="show('parent')">🔒 Daddy</button></nav>
-<section id="friend" class="card"><h2>🐉 Chat with your magical dragon</h2><p class="small">Your dragon knows a few friendly answers. For important questions, ask a grown-up you trust.</p><div class="bubble" id="reply" aria-live="polite">Hello, Mieke! I'm your dragon friend. Tell me how you feel, or ask about animals, stories, and numbers!</div><p><button onclick="speak($('reply').textContent)">🔊 Listen</button><button class="alt" id="mic" onclick="listen()">🎤 Talk</button></p><div class="row"><input id="message" placeholder="Type a message..." aria-label="Your message"><button onclick="chat()">Send 💌</button></div><p class="small" id="speechStatus" role="status">For voice input, open the published HTTPS website in Chrome and allow microphone access. You can always type instead.</p></section>
+<section id="friend" class="card"><h2>🐉 Chat with your magical dragon</h2><p class="small">Your dragon can answer questions with AI when online. AI can make mistakes. Ask a trusted grown-up about important things.</p><div class="bubble" id="reply" aria-live="polite">Hello, Mieke! I'm your dragon friend. Tell me how you feel, or ask about animals, stories, and numbers!</div><p><button onclick="speak($('reply').textContent)">🔊 Listen</button><button class="alt" id="mic" onclick="listen()">🎤 Talk</button></p><div class="row"><input id="message" placeholder="Type a message..." aria-label="Your message"><button onclick="chat()">Send 💌</button></div><p class="small" id="speechStatus" role="status">Open the published HTTPS website in Chrome, allow microphone access, or type a question.</p></section>
 <section id="math" class="card" hidden><h2>🧮 Choose an activity</h2><div class="topicgrid" id="topics"></div><h3 id="topicTitle">Addition</h3><p class="bubble" id="question" aria-live="polite"></p><div class="choices" id="answers"></div><p class="feedback" id="mathFeedback" role="status"></p><button onclick="newQuestion()">➡️ Next question</button><button class="alt" onclick="speak($('question').textContent)">🔊 Read question</button></section>
 <section id="read" class="card" hidden><h2>📚 Story Time</h2><p id="storyNumber" class="small"></p><div class="bubble" id="story"></div><p><button onclick="speak($('story').textContent)">🔊 Read to me</button><button class="alt" onclick="nextStory()">📖 Next story</button></p><h3 id="readingQuestion"></h3><div class="choices" id="readingChoices"></div><p class="feedback" id="readingFeedback" role="status"></p></section>
-<section id="parent" class="card" hidden><h2>🔒 Daddy's Corner</h2><p class="small">Progress is saved only in this browser on this device. This section is not PIN-protected.</p><p id="progress"></p><h3>🗣️ Voice settings</h3><label for="voice">English voice</label><select id="voice"></select><p class="small" id="voiceStatus"></p><button onclick="loadVoices()">🔄 Refresh voices</button><button onclick="speak('Hello Mieke! Welcome to your magical world!')">🔊 Test voice</button><label for="rate">Speaking speed: <span id="rateLabel">0.90</span></label><input id="rate" type="range" min="0.6" max="1.2" step="0.05" value="0.9" oninput="setRate(this.value)"><p><button onclick="speak('I am so proud of you, Mieke!')">❤️ A message for Mieke</button></p><p class="small">If you clear browser data or switch devices, local progress may be lost. The app does not upload children's messages.</p></section>
-<footer class="small">Free to play • No ads • No external AI chat</footer></main>
+<section id="parent" class="card" hidden><h2>🔒 Daddy's Corner</h2><p class="small">Progress is saved only in this browser on this device. This section is not PIN-protected.</p><p id="progress"></p><h3>🗣️ Voice settings</h3><label for="voice">English voice</label><select id="voice"></select><p class="small" id="voiceStatus"></p><button onclick="loadVoices()">🔄 Refresh voices</button><button onclick="speak('Hello Mieke! Welcome to your magical world!')">🔊 Test voice</button><label for="rate">Speaking speed: <span id="rateLabel">0.90</span></label><input id="rate" type="range" min="0.6" max="1.2" step="0.05" value="0.9" oninput="setRate(this.value)"><p><button onclick="speak('I am so proud of you, Mieke!')">❤️ A message for Mieke</button></p><p class="small">If you clear browser data or switch devices, local progress may be lost. AI chat questions are sent to Google Gemini through Cloudflare. Do not share private information.</p></section>
+<footer class="small">Free to play • No ads • AI chat needs internet and may have usage limits</footer></main>
 <script>
 'use strict';
 const KEY='mieke-slim-v1',VOICE_KEY='mieke-english-voice',RATE_KEY='mieke-english-rate';
@@ -61,7 +61,7 @@ function speak(t){if(!('speechSynthesis'in window)){$('speechStatus').textConten
 if('speechSynthesis'in window){loadVoices();speechSynthesis.addEventListener?.('voiceschanged',loadVoices)}
 let recognition=null;
 function listen(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){$('speechStatus').textContent='Voice recognition is not supported here. Open the HTTPS website in Chrome, or type your message.';return}if(recognition){const old=recognition;recognition=null;try{old.abort()}catch{}$('mic').textContent='🎤 Talk';$('speechStatus').textContent='Stopped listening.';return}let r=new R();recognition=r;r.lang='en-GB';r.interimResults=false;r.continuous=false;r.onresult=e=>{if(e.results?.[0]?.[0]){$('message').value=e.results[0][0].transcript;chat()}};r.onerror=e=>{if(recognition===r){$('speechStatus').textContent='Microphone: '+e.error+'. You can type instead.';recognition=null;$('mic').textContent='🎤 Talk'}};r.onend=()=>{if(recognition===r){recognition=null;$('mic').textContent='🎤 Talk'}};try{r.start();$('speechStatus').textContent='Listening... speak now.';$('mic').textContent='⏹️ Stop'}catch(e){recognition=null;$('mic').textContent='🎤 Talk';$('speechStatus').textContent='Could not start microphone. Try Chrome and check permission.'}}
-function chat(){
+function offlineChat(){
  const m=$('message').value.trim(); if(!m)return;
  const s=m.toLowerCase().replace(/[’]/g,"'");
  const pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -90,6 +90,37 @@ function chat(){
  else if(/\b(birthday)\b/.test(s))r='Your birthday is on the seventeenth of December! What would you like to do on your birthday?';
  else r=pick(['Tell me more about that, Mieke! What happened next?','That sounds interesting! What do you like most about it?','I love hearing your ideas! Can you tell me another thing about it?','Hmm, I am still learning. Would you like to tell me more?']);
  $('reply').textContent=r;$('message').value='';speak(r);
+}
+const AI_URL='https://mieke-dragon-ai.jpjvv0169.workers.dev';
+let chatBusy=false;
+async function chat(){
+ const input=$('message');
+ const message=input.value.trim();
+ if(!message||chatBusy)return;
+ if(message.length>400){$('speechStatus').textContent='Please use a shorter question.';return;}
+ chatBusy=true;
+ input.disabled=true;
+ $('reply').textContent='✨ My dragon is thinking...';
+ $('speechStatus').textContent='Asking the magical dragon...';
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),18000);
+ try{
+  const response=await fetch(AI_URL,{
+   method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({message}),signal:controller.signal
+  });
+  const result=await response.json();
+  if(!response.ok||typeof result.reply!=='string'||!result.reply.trim())throw new Error('AI unavailable');
+  const answer=result.reply.trim().slice(0,1200);
+  $('reply').textContent=answer;
+  $('speechStatus').textContent='Dragon answered!';
+  input.value='';
+  speak(answer);
+ }catch(e){
+  $('speechStatus').textContent=e.name==='AbortError'?'The dragon took too long. Try again.':'AI is unavailable right now. Using simple offline answers.';
+  input.value=message;
+  offlineChat();
+ }finally{clearTimeout(timeout);chatBusy=false;input.disabled=false;}
 }
 $('message').addEventListener('keydown',e=>{if(e.key==='Enter')chat()});
 const topics=[['add','➕ Addition'],['subtract','➖ Subtraction'],['multiply','✖️ Multiplication'],['divide','➗ Division'],['train','🚂 Number trains'],['houses','🏠 Number houses'],['words','💬 Word problems'],['names','🔤 Number names'],['patterns','🔢 Patterns'],['tally','📊 Tally marks'],['rows','🟦 Rows & columns'],['mass','⚖️ Mass'],['volume','🧪 Volume & capacity'],['time','🕒 Time'],['money','💰 Money & change'],['directions','🧭 Directions']];
