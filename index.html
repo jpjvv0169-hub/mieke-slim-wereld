@@ -146,35 +146,48 @@ let topic='add',currentQuestion=null,answered=false;
 for(let [id,name] of topics){let b=document.createElement('button');b.textContent=name;b.className=id===topic?'selected':'';b.onclick=()=>{topic=id;document.querySelectorAll('#topics button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');newQuestion()};$('topics').appendChild(b)}
 const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const pick=a=>a[rnd(0,a.length-1)];
-// Original animal riddles: tricky clues, multiple choice, and an optional hint.
+// Age 6–7: familiar animals, short clues, and gentle challenges.
 const animalRiddles=[
-['Pangolin','I am a mammal covered in protective scales. When frightened, I curl into a ball.','I eat ants and termites with a long sticky tongue.'],
-['Axolotl','I live in water and keep features that most amphibians lose as adults.','My feathery external gills look like little branches beside my head.'],
-['Narwhal','I live in cold Arctic seas and belong to the whale family.','One of my teeth can grow into a very long spiral tusk.'],
-['Okapi','My body looks partly like a horse, but my closest living relative is very tall.','I have zebra-like stripes on my legs and am related to giraffes.'],
-['Aye-aye','I am a nocturnal primate that searches for insects in trees.','I tap wood and use an unusually long middle finger to find food.'],
-['Platypus','I am a mammal that lays eggs instead of giving birth to live young.','I have a duck-like bill and webbed feet.'],
-['Quokka','I am a small marsupial that lives in Western Australia.','My face often looks like I am smiling.'],
-['Tardigrade','I am tiny, have eight legs, and can survive some extreme conditions.','People sometimes call me a water bear.'],
-['Cassowary','I am a large flightless rainforest bird with powerful legs.','I have a helmet-like casque on my head.'],
-['Fennec fox','I am a small desert hunter that keeps cool in the heat.','My ears are unusually large for my body.'],
-['Mantis shrimp','I live in the sea and have exceptionally complex eyes.','Some of my relatives strike prey with incredibly fast club-like limbs.'],
-['Leafy seadragon','I am a fish related to seahorses and blend into seaweed.','Leaf-shaped appendages cover my body, but they do not help me swim.'],
-['Echidna','I am a spiny mammal that searches for ants.','Like the platypus, I lay eggs.'],
-['Shoebill','I am a tall wetland bird that can stand very still while hunting.','My huge bill is shaped a little like a shoe.'],
-['Glass frog','I am a small amphibian often found near tropical streams.','On some species, you can see internal organs through the belly skin.'],
-['Archerfish','I hunt insects resting on leaves above the water.','I shoot jets of water to knock insects down.'],
-['Saiga antelope','I roam grasslands and have a very unusual face.','My large flexible nose helps filter dust and warm cold air.'],
-['Binturong','I am a tree-climbing mammal from Asian forests.','I am sometimes called a bearcat and have a grasping tail.'],
-['Kakapo','I am a nocturnal parrot from New Zealand.','I am heavy, green, and unable to fly.'],
-['Numbat','I am a small striped marsupial active during the day.','I feed mainly on termites and have a long sticky tongue.'],
-['Dugong','I am a gentle marine mammal that grazes underwater.','My favourite food is seagrass, and my tail resembles a whale tail.'],
-['Gerenuk','I am an African antelope with a very long neck.','I often stand on my hind legs to reach leaves.'],
-['Hoatzin','I am a tropical bird whose young have an unusual climbing ability.','My chicks have claws on their wings.'],
-['Star-nosed mole','I live underground and find food using a very sensitive snout.','My nose has 22 fleshy rays arranged like a star.']
+['Elephant','I am very big. I have a long trunk and two large ears.','I use my trunk to drink water.'],
+['Giraffe','I have a very long neck and spots on my body.','I can reach leaves high in trees.'],
+['Zebra','I look like a horse, but I have black and white stripes.','I live on the grasslands of Africa.'],
+['Lion','I am a big wild cat. I roar loudly.','Male lions often have a mane.'],
+['Cheetah','I am a spotted wild cat and I can run very fast.','I am the fastest land animal.'],
+['Hippo','I am very heavy and spend lots of time in rivers.','My mouth opens very wide.'],
+['Crocodile','I have sharp teeth, a long tail, and tough skin.','I can hide in the water with my eyes above it.'],
+['Rhino','I have thick skin and one or two horns on my nose.','I am a large African animal.'],
+['Kangaroo','I jump on strong back legs and have a long tail.','I carry my baby in a pouch.'],
+['Penguin','I am a bird that cannot fly, but I swim very well.','I often look like I am wearing a black-and-white suit.'],
+['Dolphin','I live in the sea, breathe air, and love to jump.','I am clever and make clicking sounds.'],
+['Whale','I am a huge animal that lives in the ocean.','I breathe air through a blowhole.'],
+['Octopus','I live in the sea and have eight arms.','I can squirt ink to escape.'],
+['Shark','I swim in the sea and have rows of sharp teeth.','I am a fish, not a dolphin.'],
+['Owl','I am a bird that often hunts at night.','I have big eyes and can turn my head far around.'],
+['Bat','I sleep hanging upside down and fly at night.','I am a mammal, not a bird.'],
+['Chameleon','I am a lizard that can change colour.','My eyes can look in different directions.'],
+['Tortoise','I have a hard shell and walk slowly on land.','I can pull my head into my shell.'],
+['Frog','I hop and make croaking sounds near water.','I start life as a tadpole.'],
+['Butterfly','I have colourful wings and start life as a caterpillar.','I visit flowers.'],
+['Bee','I buzz around flowers and help make honey.','I live with other bees in a hive.'],
+['Ant','I am tiny and live in a busy colony.','I can carry things heavier than myself.'],
+['Flamingo','I am a tall pink bird with long thin legs.','I often stand on one leg.'],
+['Meerkat','I am small, live in groups, and stand upright to look for danger.','I live in burrows in southern Africa.'],
+['Porcupine','I have many sharp quills to protect myself.','I am a rodent with spikes on my back.'],
+['Ostrich','I am a very tall bird that cannot fly but runs fast.','I lay very large eggs.'],
+['Seal','I swim well and rest on beaches or rocks.','I have flippers and whiskers.'],
+['Camel','I can travel in dry deserts and have humps on my back.','My humps store fat, not water.'],
+['Peacock','I am a bird famous for my beautiful fan-shaped tail.','The male has colourful feathers with eye-like patterns.'],
+['Rabbit','I have long ears, soft fur, and strong hopping legs.','I like to nibble grass and vegetables.']
 ];
 let lastAnimal=-1;
-function animalQuestion(){let index=rnd(0,animalRiddles.length-1);if(index===lastAnimal)index=(index+1)%animalRiddles.length;lastAnimal=index;let [name,clue,hint]=animalRiddles[index];let wrong=shuffle(animalRiddles.map(x=>x[0]).filter(x=>x!==name)).slice(0,3);return{prompt:'🕵️ GUESS THE ANIMAL!\n\n'+clue+'\n\nChoose the correct animal. Need help? Tap 💡 Hint.',answer:name,options:shuffle([name,...wrong]),hint}}
+function animalQuestion(){
+ let index=rnd(0,animalRiddles.length-1);
+ if(index===lastAnimal)index=(index+1)%animalRiddles.length;
+ lastAnimal=index;
+ let [name,clue,hint]=animalRiddles[index];
+ let wrong=shuffle(animalRiddles.map(x=>x[0]).filter(x=>x!==name)).slice(0,3);
+ return {prompt:'🐾 GUESS THE ANIMAL!\n\n'+clue+'\n\nWhich animal am I? Tap 💡 Hint if you need help.',answer:name,options:shuffle([name,...wrong]),hint};
+}
 function questionFor(t){let a,b,c,n,answer,prompt,options=null;switch(t){
 case 'animals':return animalQuestion();
 case 'heavy-light':{
