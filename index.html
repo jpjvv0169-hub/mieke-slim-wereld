@@ -675,6 +675,460 @@ function meetMagicDragon(){document.getElementById('dragonHello').hidden=false;r
 function saveDragonName(){const name=document.getElementById('dragonName').value.trim().replace(/[<>]/g,'').slice(0,18);if(!name){dragonSpeak('Please choose a name for your dragon!');return}dragonState.name=name;saveDragonState();dragonSpeak('Hooray! My name is '+name+'!')}
 function dragonAction(action){const scene=document.getElementById('dragonScene'),hearts=document.getElementById('dragonHearts');scene.classList.remove('dragon-fly','dragon-dance','dragon-sleep','dragon-feed','dragon-love');void scene.offsetWidth;const messages={feed:'Yummy! Thank you for the berries, Mieke!',play:'Let’s dance together, Mieke!',fly:'Wheee! I am flying over the castle!',sleep:'Shhh... sweet dreams, Mieke!',love:'Big dragon cuddles for you, Mieke!'};scene.classList.add('dragon-'+(action==='play'?'dance':action));if(action==='feed')dragonState.fed++;if(action==='play'||action==='fly')dragonState.plays++;if(action==='love'||action==='feed')dragonState.love++;saveDragonState();refreshDragonHome();hearts.textContent=action==='feed'?'🍓 ✨':action==='sleep'?'💤 🌙':action==='fly'?'✨ ⭐':action==='love'?'💗 💗':'🎉 ✨';if(typeof playMagicTap==='function')playMagicTap();dragonSpeak(messages[action]);}
 function closeMagicDragon(){document.getElementById('dragonHello').hidden=true;if('speechSynthesis' in window)speechSynthesis.cancel()}
-</script></body></html>
+</script>
+<!-- MIEKE'S GENIUS ACADEMY - COMPLETE EXPANSION -->
+<style>
+#mg-open{position:fixed;bottom:18px;right:14px;z-index:2147483000;background:linear-gradient(135deg,#7138e7,#ec56ae);color:white;border:3px solid white;border-radius:25px;padding:13px 17px;font:bold 15px Arial;box-shadow:0 5px 20px #45206880;cursor:pointer}
+#mg-app{display:none;position:fixed;inset:0;z-index:2147483001;background:linear-gradient(155deg,#21114e,#55239b 55%,#9e378e);color:white;overflow-y:auto;font-family:Arial,sans-serif}
+#mg-app *{box-sizing:border-box}
+#mg-app .mg-wrap{max-width:750px;margin:auto;padding:18px 15px 70px}
+#mg-app .mg-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#mg-app h1{font-size:27px;text-align:center;margin:12px 0}
+#mg-app h2{font-size:22px}
+#mg-app p{line-height:1.5}
+#mg-app button{font-family:inherit;cursor:pointer}
+#mg-app .mg-btn{border:0;border-radius:15px;padding:14px;color:white;background:#8b47da;font-weight:bold;font-size:16px}
+#mg-app .mg-back{background:#ffffff22;border:1px solid #ffffff70}
+#mg-app .mg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}
+#mg-app .mg-tile{min-height:128px;padding:16px 9px;border:2px solid #ffffff65;border-radius:20px;background:linear-gradient(145deg,#ffffff30,#ffffff12);color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;text-align:center;font-weight:bold;font-size:16px}
+#mg-app .mg-emoji{font-size:36px}
+#mg-app .mg-card{background:#ffffff19;border:1px solid #ffffff40;border-radius:20px;padding:20px;margin:15px 0;text-align:center}
+#mg-app .mg-answers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+#mg-app .mg-answer{background:#fff;color:#352064;border:0;border-radius:14px;padding:17px 8px;font-weight:bold;font-size:17px;min-height:62px;overflow-wrap:anywhere}
+#mg-app .mg-answer:disabled{opacity:.65}
+#mg-app .mg-good{background:#50d4a3!important;color:#103e30!important}
+#mg-app .mg-wrong{background:#ff9eaa!important;color:#5b1222!important}
+#mg-app .mg-stat{background:#ffffff1c;padding:12px;border-radius:12px;margin:9px 0}
+#mg-app .mg-track{height:10px;background:#ffffff35;border-radius:20px;overflow:hidden;margin-top:8px}
+#mg-app .mg-fill{height:100%;background:#5de8b6;border-radius:20px}
+#mg-app .mg-small{font-size:13px;opacity:.85}
+#mg-app .mg-status{min-height:38px;font-weight:bold;margin:12px 0}
+#mg-app .mg-actionrow{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+#mg-app .mg-word{font-size:30px;font-weight:bold;letter-spacing:5px;margin:15px 0;word-break:break-word}
+#mg-app .mg-center{text-align:center}
+@media(max-width:370px){#mg-app .mg-tile{font-size:14px}#mg-app .mg-answer{font-size:15px}}
+</style>
+
+<button id="mg-open" type="button">🎓 Genius Academy</button>
+
+<section id="mg-app" aria-label="Mieke Genius Academy">
+<div class="mg-wrap">
+  <div class="mg-head">
+    <button class="mg-btn mg-back" id="mg-home" type="button">⌂ Home</button>
+    <span id="mg-stars">⭐ 0 Academy Stars</span>
+    <button class="mg-btn mg-back" id="mg-close" type="button">✕</button>
+  </div>
+  <div id="mg-content"></div>
+</div>
+</section>
+
+<script>
+(function(){
+"use strict";
+const PREFIX="mieke_genius_v1_";
+const categories=[
+{id:"reading",name:"Reading Academy",emoji:"📚"},
+{id:"words",name:"Word Builder",emoji:"🔤"},
+{id:"maths",name:"Maths Genius",emoji:"🔢"},
+{id:"science",name:"Science Lab",emoji:"🔬"},
+{id:"world",name:"Explore Our World",emoji:"🌍"},
+{id:"brain",name:"Brain Power Castle",emoji:"🧩"}
+];
+const banks={
+reading:[
+["Which word rhymes with CAT?","HAT",["HAT","SUN","DOG","TREE"]],
+["Which word rhymes with DOG?","LOG",["LOG","CAR","PEN","FISH"]],
+["Which word starts with B?","BALL",["APPLE","BALL","CAT","DOG"]],
+["Which word starts with S?","SUN",["MOON","APPLE","FISH","SUN"]],
+["Which word ends with T?","HAT",["DOG","HAT","SUN","BEE"]],
+["How many letters are in APPLE?","5",["3","4","5","6"]],
+["Which word means a baby cat?","KITTEN",["PUPPY","KITTEN","CALF","LAMB"]],
+["Which is a colour?","PURPLE",["TABLE","PURPLE","HOUSE","CHAIR"]],
+["The dog is happy. Who is happy?","THE DOG",["THE CAT","THE DOG","THE BIRD","THE FISH"]],
+["Mieke has a red bag. What colour is it?","RED",["BLUE","GREEN","RED","YELLOW"]],
+["Which sentence is a question?","WHERE ARE YOU?",["I AM HERE.","THE SUN IS HOT.","WHERE ARE YOU?","SHE CAN RUN."]],
+["Which word has two syllables?","RAINBOW",["CAT","DOG","RAINBOW","SUN"]],
+["Which word is the opposite of HOT?","COLD",["WARM","COLD","BIG","FAST"]],
+["Which word is the opposite of UP?","DOWN",["HIGH","OVER","DOWN","ABOVE"]],
+["Which word is a describing word?","SOFT",["RUN","SOFT","JUMP","SING"]]
+],
+science:[
+["What do plants need to grow?","WATER",["WATER","PLASTIC","GLASS","SAND ONLY"]],
+["Which body part helps us see?","EYES",["EARS","EYES","NOSE","FEET"]],
+["Which body part helps us hear?","EARS",["HANDS","EARS","TEETH","KNEES"]],
+["What planet do we live on?","EARTH",["MARS","VENUS","EARTH","JUPITER"]],
+["What gives us light during the day?","THE SUN",["THE MOON","THE SUN","THE STARS","A CLOUD"]],
+["What happens when water freezes?","ICE",["STEAM","ICE","SAND","SMOKE"]],
+["What do bees collect from flowers?","NECTAR",["STONES","NECTAR","SALT","WOOD"]],
+["Which animal lays eggs?","CHICKEN",["COW","DOG","CHICKEN","HORSE"]],
+["What do we breathe?","AIR",["WATER","SOIL","AIR","JUICE"]],
+["Which material is attracted to a magnet?","IRON",["WOOD","PAPER","IRON","PLASTIC"]],
+["Which sense helps us smell flowers?","SMELL",["SIGHT","HEARING","SMELL","TOUCH"]],
+["What do caterpillars become?","BUTTERFLIES",["FISH","BUTTERFLIES","DOGS","FROGS"]],
+["Which part of a plant absorbs water?","ROOTS",["FLOWERS","LEAVES","ROOTS","FRUIT"]],
+["What should we do before eating?","WASH HANDS",["RUN FAST","WASH HANDS","SHOUT","JUMP"]],
+["What falls from clouds?","RAIN",["ROCKS","RAIN","BOOKS","SAND"]]
+],
+world:[
+["Which continent is South Africa in?","AFRICA",["EUROPE","AFRICA","ASIA","AUSTRALIA"]],
+["Which continent is Mozambique in?","AFRICA",["ASIA","AFRICA","EUROPE","ANTARCTICA"]],
+["Which is the biggest ocean?","PACIFIC",["INDIAN","ARCTIC","PACIFIC","ATLANTIC"]],
+["What is the capital of South Africa's government administration?","PRETORIA",["DURBAN","PRETORIA","POLOKWANE","NELSPRUIT"]],
+["Which animal has a very long neck?","GIRAFFE",["LION","GIRAFFE","ZEBRA","HIPPO"]],
+["Which animal has black and white stripes?","ZEBRA",["ELEPHANT","ZEBRA","RHINO","BUFFALO"]],
+["Where do penguins live?","ON LAND AND IN WATER",["ONLY IN TREES","ON LAND AND IN WATER","IN DESERT SAND ONLY","UNDERGROUND ONLY"]],
+["Which direction is opposite to NORTH?","SOUTH",["EAST","WEST","SOUTH","UP"]],
+["What do we use to find places?","MAP",["SPOON","MAP","PILLOW","CUP"]],
+["What do fish use to breathe underwater?","GILLS",["WINGS","GILLS","PAWS","FEATHERS"]],
+["Which is a natural water source?","RIVER",["ROAD","RIVER","HOUSE","CAR"]],
+["Which is the coldest continent?","ANTARCTICA",["AFRICA","EUROPE","ANTARCTICA","ASIA"]],
+["Which animal is known for its trunk?","ELEPHANT",["LION","ELEPHANT","ZEBRA","LEOPARD"]],
+["Which is a country?","MOZAMBIQUE",["AFRICA","MOZAMBIQUE","INDIAN OCEAN","THE MOON"]],
+["Where does the sun rise?","EAST",["WEST","NORTH","SOUTH","EAST"]]
+],
+brain:[
+["What comes next? 2, 4, 6, ...","8",["7","8","9","10"]],
+["What comes next? 5, 10, 15, ...","20",["16","18","20","25"]],
+["What comes next? A, B, C, ...","D",["E","F","D","G"]],
+["Which does not belong?","CAR",["APPLE","PEAR","BANANA","CAR"]],
+["Which does not belong?","SHOE",["DOG","CAT","SHOE","COW"]],
+["What comes next? RED, BLUE, RED, BLUE, ...","RED",["GREEN","BLUE","RED","YELLOW"]],
+["Which is heavier?","ELEPHANT",["MOUSE","ELEPHANT","FEATHER","ANT"]],
+["Which shape has three sides?","TRIANGLE",["SQUARE","CIRCLE","TRIANGLE","RECTANGLE"]],
+["Which shape has no corners?","CIRCLE",["SQUARE","TRIANGLE","CIRCLE","CUBE"]],
+["If today is Monday, tomorrow is ...","TUESDAY",["SUNDAY","FRIDAY","TUESDAY","SATURDAY"]],
+["Which number is the smallest?","3",["12","7","3","19"]],
+["Which number is the largest?","21",["8","15","21","11"]],
+["What comes next? 10, 9, 8, ...","7",["6","7","9","11"]],
+["What comes next? 1, 3, 5, ...","7",["6","7","8","9"]],
+["If you have 2 pairs of socks, how many socks?","4",["2","3","4","6"]]
+]
+};
+const wordList=[
+"CAT","DOG","SUN","HAT","BAT","PEN","HEN","BED","RED","CUP",
+"BUS","BOX","FOX","PIG","BIG","MAP","CAP","JAM","LEG","EGG",
+"FISH","BIRD","TREE","BOOK","STAR","MOON","RAIN","BOAT","FROG","DUCK",
+"CAKE","MILK","LION","BEAR","FARM","HOME","HAND","FOOT","BALL","DOLL",
+"APPLE","HOUSE","HORSE","WATER","HAPPY","SMILE","SNAKE","SHEEP","GREEN","BREAD",
+"FLOWER","RABBIT","ORANGE","PURPLE","BANANA","GARDEN","SCHOOL","DRAGON","PLANET","CASTLE",
+"RAINBOW","UNICORN","ELEPHANT","BUTTERFLY","DINOSAUR","ADVENTURE","CHOCOLATE","SUNSHINE","TREASURE","PRINCESS"
+];
+const meanings={
+CAT:"A small pet that says meow.",
+DOG:"A friendly animal that barks.",
+SUN:"The star that gives us daylight.",
+FISH:"An animal that swims in water.",
+TREE:"A plant with a trunk and branches.",
+APPLE:"A crunchy fruit.",
+WATER:"Something we drink.",
+SCHOOL:"A place where we learn.",
+DRAGON:"A magical creature in stories.",
+UNICORN:"A magical horse with one horn.",
+ELEPHANT:"A huge animal with a trunk.",
+RAINBOW:"Beautiful colours seen after rain.",
+BUTTERFLY:"An insect with colourful wings.",
+DINOSAUR:"An animal that lived long ago.",
+PRINCESS:"A character in many fairy tales."
+};
+const $=id=>document.getElementById(id);
+const get=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(PREFIX+key))??fallback}catch(e){return fallback}};
+const put=(key,value)=>{try{localStorage.setItem(PREFIX+key,JSON.stringify(value))}catch(e){}};
+let stats=get("stats",{stars:0,played:0,correct:0,by:{},days:{}});
+let mode="",question=null,answered=false,session=0;
+let selectedLetters=[],targetWord="",wordPool=[];
+const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function speak(t){
+try{
+speechSynthesis.cancel();
+let u=new SpeechSynthesisUtterance(t);
+u.lang="en-GB";u.rate=.86;u.pitch=1.1;
+speechSynthesis.speak(u)
+}catch(e){}
+}
+function shuffle(arr){
+let a=arr.slice();
+for(let i=a.length-1;i>0;i--){
+let j=Math.floor(Math.random()*(i+1));
+[a[i],a[j]]=[a[j],a[i]];
+}
+return a;
+}
+function updateStars(){
+$("mg-stars").textContent="⭐ "+stats.stars+" Academy Stars";
+}
+function save(){
+put("stats",stats);updateStars();
+}
+function record(correct){
+stats.played++;
+if(!stats.by[mode])stats.by[mode]={played:0,correct:0};
+stats.by[mode].played++;
+if(correct){
+stats.correct++;
+stats.by[mode].correct++;
+stats.stars+=10;
+}
+let day=new Date().toLocaleDateString("en-CA");
+if(!stats.days[day])stats.days[day]={played:0,correct:0};
+stats.days[day].played++;
+if(correct)stats.days[day].correct++;
+save();
+}
+function view(html){$("mg-content").innerHTML=html}
+function open(){
+$("mg-app").style.display="block";
+document.body.style.overflow="hidden";
+home();
+}
+function close(){
+$("mg-app").style.display="none";
+document.body.style.overflow="";
+try{speechSynthesis.cancel()}catch(e){}
+}
+function home(){
+mode="";updateStars();
+view(`
+<h1>✨ Mieke's Genius Academy ✨</h1>
+<p class="mg-center">Welcome, clever Mieke! Every question makes your brain stronger.</p>
+<div class="mg-card">
+<div class="mg-emoji">🏆</div>
+<h2>${stats.stars} Academy Stars</h2>
+<p>${stats.played} activities completed</p>
+<button class="mg-btn" data-action="daily">🌟 Daily Genius Challenge</button>
+</div>
+<div class="mg-grid">
+${categories.map(c=>`
+<button class="mg-tile" data-category="${c.id}">
+<span class="mg-emoji">${c.emoji}</span>
+<span>${c.name}</span>
+</button>`).join("")}
+</div>
+<div class="mg-card">
+<h2>👨‍👧 Daddy's Dashboard</h2>
+<p>See what Mieke is learning and where she needs practice.</p>
+<button class="mg-btn" data-action="dashboard">Open Dashboard</button>
+</div>
+<p class="mg-small mg-center">Learn • Think • Explore • Create • Have Fun</p>
+`);
+}
+function mathsQuestion(){
+let level=stats.by.maths?.correct||0;
+let a,b,op,answer,text;
+let type=Math.floor(Math.random()*(level>=15?5:level>=6?4:3));
+if(type===0){
+a=1+Math.floor(Math.random()*(level>=10?50:15));
+b=1+Math.floor(Math.random()*(level>=10?40:10));
+answer=a+b;text=`What is ${a} + ${b}?`;
+}else if(type===1){
+a=5+Math.floor(Math.random()*(level>=10?70:20));
+b=Math.floor(Math.random()*(a+1));
+answer=a-b;text=`What is ${a} - ${b}?`;
+}else if(type===2){
+a=2+Math.floor(Math.random()*8);
+b=2+Math.floor(Math.random()*5);
+answer=a*b;text=`What is ${a} × ${b}?`;
+}else if(type===3){
+b=2+Math.floor(Math.random()*8);
+answer=2+Math.floor(Math.random()*8);
+a=b*answer;text=`What is ${a} ÷ ${b}?`;
+}else{
+a=5+Math.floor(Math.random()*15);
+b=1+Math.floor(Math.random()*10);
+answer=a+b;text=`Mieke has R${a} and gets R${b} more. How much money does she have?`;
+}
+let opts=new Set([answer]);
+let attempts=0;
+while(opts.size<4&&attempts++<100){
+let offset=Math.floor(Math.random()*17)-8;
+if(offset!==0&&answer+offset>=0)opts.add(answer+offset);
+}
+return {text,answer:String(answer),options:shuffle([...opts].map(String))};
+}
+function nextQuestion(){
+answered=false;session++;
+if(mode==="words"){newWord();return}
+let q;
+if(mode==="maths")q=mathsQuestion();
+else{
+let bank=banks[mode]||banks.brain;
+let recent=get("recent_"+mode,[]);
+let available=bank.map((_,i)=>i).filter(i=>!recent.includes(i));
+if(!available.length){recent=[];available=bank.map((_,i)=>i)}
+let idx=available[Math.floor(Math.random()*available.length)];
+recent.push(idx);
+put("recent_"+mode,recent.slice(-Math.min(8,bank.length-1)));
+let item=bank[idx];
+q={text:item[0],answer:item[1],options:shuffle(item[2])};
+}
+question=q;
+let cat=categories.find(c=>c.id===mode);
+view(`
+<div class="mg-center">
+<h1>${cat?.emoji||"🌟"} ${cat?.name||"Genius Challenge"}</h1>
+<p>Question ${session}</p>
+</div>
+<div class="mg-card">
+<h2 id="mg-question">${escapeHTML(q.text)}</h2>
+<button class="mg-btn mg-back" data-action="speak">🔊 Listen</button>
+<div class="mg-answers">
+${q.options.map(o=>`<button class="mg-answer" data-answer="${escapeHTML(o)}">${escapeHTML(o)}</button>`).join("")}
+</div>
+<div id="mg-feedback" class="mg-status" aria-live="polite"></div>
+<button class="mg-btn" id="mg-next" data-action="next" style="display:none">Next Question ➜</button>
+</div>
+<div class="mg-center"><button class="mg-btn mg-back" data-action="home">Back to Academy</button></div>
+`);
+}
+function answer(value){
+if(answered)return;
+answered=true;
+let correct=value===question.answer;
+record(correct);
+document.querySelectorAll("#mg-app [data-answer]").forEach(b=>{
+b.disabled=true;
+if(b.dataset.answer===question.answer)b.classList.add("mg-good");
+else if(b.dataset.answer===value)b.classList.add("mg-wrong");
+});
+$("mg-feedback").textContent=correct?
+"🌟 Brilliant, Mieke! +10 stars!":
+"💜 Good try! The answer is "+question.answer+".";
+$("mg-next").style.display="inline-block";
+speak(correct?"Brilliant Mieke! Well done!":"Good try. The correct answer is "+question.answer);
+}
+function newWord(){
+answered=false;selectedLetters=[];
+let level=stats.by.words?.correct||0;
+let maxLength=level<5?3:level<12?4:level<25?5:level<40?7:12;
+let available=wordList.filter(w=>w.length<=maxLength);
+let recent=get("recent_words",[]);
+let choices=available.filter(w=>!recent.includes(w));
+if(!choices.length){recent=[];choices=available}
+targetWord=choices[Math.floor(Math.random()*choices.length)];
+recent.push(targetWord);
+put("recent_words",recent.slice(-Math.min(15,available.length-1)));
+wordPool=shuffle(targetWord.split("").map((letter,i)=>({letter,id:i})));
+renderWord();
+}
+function renderWord(){
+let cat=categories.find(c=>c.id==="words");
+let hint=meanings[targetWord]||`Build a word with ${targetWord.length} letters.`;
+let chosen=selectedLetters.map(id=>wordPool.find(x=>x.id===id)?.letter||"").join("");
+let remaining=wordPool.filter(x=>!selectedLetters.includes(x.id));
+view(`
+<div class="mg-center">
+<h1>${cat.emoji} ${cat.name}</h1>
+<p>Word ${session}</p>
+</div>
+<div class="mg-card">
+<p>🔎 ${escapeHTML(hint)}</p>
+<p class="mg-small">Put the letters in the correct order.</p>
+<div class="mg-word">${escapeHTML(chosen.padEnd(targetWord.length,"_").split("").join(" "))}</div>
+<div class="mg-answers">
+${remaining.map(x=>`<button class="mg-answer" data-letter="${x.id}">${x.letter}</button>`).join("")}
+</div>
+<div id="mg-feedback" class="mg-status" aria-live="polite"></div>
+<div class="mg-actionrow">
+<button class="mg-btn mg-back" data-action="clearword">Start Again</button>
+<button class="mg-btn" data-action="checkword">Check Word ✓</button>
+</div>
+<button class="mg-btn" id="mg-next" data-action="next" style="display:none;margin-top:14px">Next Word ➜</button>
+</div>
+<div class="mg-center"><button class="mg-btn mg-back" data-action="home">Back to Academy</button></div>
+`);
+}
+function checkWord(){
+if(answered)return;
+let chosen=selectedLetters.map(id=>wordPool.find(x=>x.id===id)?.letter||"").join("");
+if(chosen.length!==targetWord.length){
+$("mg-feedback").textContent="Choose all the letters first!";return;
+}
+answered=true;
+let correct=chosen===targetWord;
+record(correct);
+$("mg-feedback").textContent=correct?
+"🌟 Amazing spelling! +10 stars!":
+"💜 Nice try! The word is "+targetWord+".";
+$("mg-next").style.display="inline-block";
+document.querySelectorAll("#mg-app [data-letter]").forEach(b=>b.disabled=true);
+speak(correct?"Amazing spelling, Mieke!":`The word is ${targetWord.split("").join(" ")}`);
+}
+function dashboard(){
+let pin=get("daddy_pin",null);
+if(pin===null){
+let chosen=prompt("Daddy: Create a 4-digit PIN for your dashboard.");
+if(chosen===null)return;
+if(!/^\d{4}$/.test(chosen)){alert("Please enter exactly 4 numbers.");return}
+put("daddy_pin",chosen);
+}else{
+let entered=prompt("Daddy's PIN:");
+if(entered===null)return;
+if(entered!==pin){alert("Incorrect PIN.");return}
+}
+let today=new Date().toLocaleDateString("en-CA");
+let todayData=stats.days[today]||{played:0,correct:0};
+view(`
+<h1>👨‍👧 Daddy's Dashboard</h1>
+<div class="mg-card">
+<h2>Learning Overview</h2>
+<p>⭐ Total Stars: ${stats.stars}</p>
+<p>📘 Activities Completed: ${stats.played}</p>
+<p>🎯 Correct Answers: ${stats.correct}</p>
+<p>📅 Today: ${todayData.played} activities</p>
+<p>Today's Correct Answers: ${todayData.correct}</p>
+</div>
+<h2>Progress by Subject</h2>
+${categories.map(c=>{
+let s=stats.by[c.id]||{played:0,correct:0};
+let pct=s.played?Math.round(s.correct/s.played*100):0;
+return `<div class="mg-stat">
+<strong>${c.emoji} ${c.name}</strong>
+<p>${s.correct} correct out of ${s.played} attempts (${pct}%)</p>
+<div class="mg-track"><div class="mg-fill" style="width:${pct}%"></div></div>
+</div>`;
+}).join("")}
+<div class="mg-card">
+<h2>💡 Learning Tip</h2>
+<p>Celebrate effort, ask Mieke to explain her answers, and revisit difficult topics in short, playful sessions.</p>
+<p class="mg-small">Percentages show quiz accuracy, not IQ or a formal school assessment. Data is stored on this device/browser.</p>
+</div>
+<div class="mg-center"><button class="mg-btn" data-action="home">Back to Academy</button></div>
+`);
+}
+function daily(){
+let today=new Date().toLocaleDateString("en-CA");
+let data=stats.days[today]||{played:0,correct:0};
+let next=categories[data.played%categories.length];
+mode=next.id;session=0;nextQuestion();
+}
+$("mg-open").addEventListener("click",open);
+$("mg-close").addEventListener("click",close);
+$("mg-home").addEventListener("click",home);
+$("mg-app").addEventListener("click",function(e){
+let b=e.target.closest("button");
+if(!b)return;
+if(b.dataset.category){
+mode=b.dataset.category;session=0;nextQuestion();return;
+}
+if(b.hasAttribute("data-answer")){answer(b.dataset.answer);return}
+if(b.hasAttribute("data-letter")){
+if(answered)return;
+selectedLetters.push(Number(b.dataset.letter));
+renderWord();return;
+}
+switch(b.dataset.action){
+case "home":home();break;
+case "next":nextQuestion();break;
+case "speak":speak(question?.text||"");break;
+case "clearword":if(!answered){selectedLetters=[];renderWord()}break;
+case "checkword":checkWord();break;
+case "dashboard":dashboard();break;
+case "daily":daily();break;
+}
+});
+updateStars();
+})();
+</script>
+<!-- END OF MIEKE'S GENIUS ACADEMY -->
+</body></html>
 
 <!-- Personalised Mieke portrait, fishing adventure and collapsing navigation included. -->
